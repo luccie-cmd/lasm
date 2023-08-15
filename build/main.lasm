@@ -1,0 +1,7 @@
+push float 1.12
+push float 1.12
+addf
+push float 34
+push float 35
+addf
+halt
