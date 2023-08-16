@@ -2,4 +2,5 @@
     "files.associations": {
         "mystring.h": "c"
     },
+    "C_Cpp.errorSquiggles": "disabled",
 }

@@ -159,8 +159,9 @@ void executer_execute(Executer *exe){
     while(!exe->halt){
         Inst inst = exe->program[exe->ip];
         execute_inst(exe, inst);
+        executer_print_stack(exe);
+        fgetc(stdin);
     }
-    executer_print_stack(exe);
 }
 
 int main(){

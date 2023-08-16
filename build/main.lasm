@@ -1,7 +1,9 @@
-push float 1.12
-push float 1.12
-addf
-push float 34
-push float 35
-addf
-halt
+start:
+    push int 0
+    push int 1
+
+update:
+update:
+    dup 1
+    addi
+    jmp update
