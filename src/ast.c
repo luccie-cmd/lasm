@@ -13,7 +13,7 @@ uint64_t ast_find_label_addr(Ast ast, String name){
     exit(1);
 }
 
-Ast ast_lex_content(String content){
+Ast ast_lex_content(String content, char *file){
     Ast ast = {0};
     uint64_t lineNumber = 0;
     unsigned int labelCount = 0;
@@ -36,6 +36,7 @@ Ast ast_lex_content(String content){
                 else if(string_eq(type, string_from_cstr("uint")))   addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_u64 = string_to_int(argument)});
                 else if(string_eq(type, string_from_cstr("ptr")))    addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_ptr = (void*)strtoull(argument.data, NULL, 0)});
                 else if(string_eq(type, string_from_cstr("float")))  addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_f64 = strtof(argument.data, NULL)});
+                else{                                                printf("%s:%lld ERROR: Invalid push method named `%.*s`\n", file, lineNumber-labelCount, (int) type.count, type.data); exit(1);}
             } else if(string_eq(opcode, string_from_cstr("addi"))){
                 addAstInstNode(&ast, INST_TYPE_ADDI, (Operand){0});
             } else if(string_eq(opcode, string_from_cstr("addf"))){
@@ -60,15 +61,28 @@ Ast ast_lex_content(String content){
                 addAstInstNode(&ast, INST_TYPE_MINUSI, (Operand){0});
             } else if(string_eq(opcode, string_from_cstr("halt"))){
                 addAstInstNode(&ast, INST_TYPE_HALT, (Operand){0});
+            } else if(string_eq(opcode, string_from_cstr("drop"))){
+                addAstInstNode(&ast, INST_TYPE_DROP, (Operand){0});
+            } else if(string_eq(opcode, string_from_cstr("swap"))){
+                addAstInstNode(&ast, INST_TYPE_SWAP, (Operand){0});
+            } else if(string_eq(opcode, string_from_cstr("call"))){
+                uint64_t insts_len = ast_get_insts_len(ast);
+                ast.deferred_operrand[ast.def_opp_size] = (Ast_Deferred_Opperand) {.addr = insts_len+labelCount, .label = argument};
+                ast.def_opp_size++;
+                addAstInstNode(&ast, INST_TYPE_CALL, (Operand){0});
+            } else if(string_eq(opcode, string_from_cstr("ret"))){
+                addAstInstNode(&ast, INST_TYPE_RET, (Operand){0});
             } else{
-                printf("No opcode with name: %.*s\n", (int)opcode.count, opcode.data);
+                printf("%s:%lld: ERROR: No opcode with name: %.*s\n", file, lineNumber-labelCount, (int)opcode.count, opcode.data);
                 exit(1);
             }
         }
     }
     for (size_t i = 0; i < ast.def_opp_size; ++i) {
-        uint64_t addr = ast_find_label_addr(ast, ast.deferred_operrand[i].label);
-        ast.nodes[ast.deferred_operrand[i].addr].as_inst.operand.as_u64 = addr;
+        {
+            uint64_t addr = ast_find_label_addr(ast, ast.deferred_operrand[i].label);
+            ast.nodes[ast.deferred_operrand[i].addr].as_inst.operand.as_u64 = addr;
+        }
     }
     return ast;
 }
@@ -179,7 +193,6 @@ void compileAst(Ast ast, const char *outFile){
                     case INST_TYPE_JMP_IF: {
                         uint64_t bytecodeInst = BYTECODE_INST_TYPE_JMP_IF;
                         uint64_t bytecodeOperand = ast.nodes[i].as_inst.operand.as_u64;
-                        printf("%lld\n", ast.nodes[i].as_inst.operand.as_u64);
                         fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
                         fwrite(&bytecodeOperand, sizeof(uint64_t), 1, f);
                     } break;
@@ -197,6 +210,14 @@ void compileAst(Ast ast, const char *outFile){
                         uint64_t bytecodeInst = BYTECODE_INST_TYPE_ADDF;
                         fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
                     } break;
+                    case INST_TYPE_DROP: {
+                        uint64_t bytecodeInst = BYTECODE_INST_TYPE_DROP;
+                        fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
+                    } break;
+                    case INST_TYPE_SWAP: {
+                        uint64_t bytecodeInst = BYTECODE_INST_TYPE_SWAP;
+                        fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
+                    } break;
                     case INST_TYPE_EQU: {
                         uint64_t bytecodeInst = BYTECODE_INST_TYPE_EQU;
                         fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
@@ -212,6 +233,16 @@ void compileAst(Ast ast, const char *outFile){
                     case INST_TYPE_HALT: {
                         uint64_t bytecodeInst = BYTECODE_INST_TYPE_HALT;
                         fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
+                    } break;
+                    case INST_TYPE_RET: {
+                        uint64_t bytecodeInst = BYTECODE_INST_TYPE_RET;
+                        fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
+                    } break;
+                    case INST_TYPE_CALL: {
+                        uint64_t bytecodeInst = BYTECODE_INST_TYPE_CALL;
+                        uint64_t bytecodeOperand = ast.nodes[i].as_inst.operand.as_u64;
+                        fwrite(&bytecodeInst, sizeof(uint64_t), 1, f);
+                        fwrite(&bytecodeOperand, sizeof(uint64_t), 1, f);
                     } break;
                     default: {
                         printf("%s: not yet handled in compileAst function\n", inst_type_as_cstr(ast.nodes[i].as_inst.type));

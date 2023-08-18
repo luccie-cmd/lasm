@@ -1,9 +1,33 @@
-start:
-    push int 0
-    push int 1
+jmp start
 
-update:
-update:
-    dup 1
+putc:
+;   push ptr 0x0e
+;   int 0x10
+    ret
+
+
+; arguments
+; initial number <- 1
+; number <- 0
+return:
+    drop
+    ret
+addiUntil:
+    swap
+addiUntilLoop:
+    push int 1
     addi
-    jmp update
+    dup 1
+    dup 1
+    equ
+    jmp_if return
+    jmp addiUntilLoop
+
+start:
+    push int 65 ; 'A' in decimal
+    call putc
+    push int 0
+    push int 10
+    call addiUntil
+    push float 0.10
+    halt

@@ -9,6 +9,9 @@ typedef struct{
     Inst program[1024];
     uint64_t programLen;
 
+    uint64_t callAddr[1024];
+    uint64_t callAddr_len;
+
     uint64_t ip;
     int halt;
 } Executer;
@@ -58,6 +61,11 @@ void executer_load_from_uint8(Executer *executor, uint64_t *content, size_t len)
                 Inst inst = MAKE_INST(INST_TYPE_DUP, argument);
                 add_to_executer(executor, inst);
             } break;
+            case BYTECODE_INST_TYPE_CALL: {
+                uint64_t argument = content[i++];
+                Inst inst = MAKE_INST(INST_TYPE_CALL, argument);
+                add_to_executer(executor, inst);
+            } break;
             case BYTECODE_INST_TYPE_JMP_IF: {
                 uint64_t argument = content[i++];
                 Inst inst = MAKE_INST(INST_TYPE_JMP_IF, argument);
@@ -67,8 +75,20 @@ void executer_load_from_uint8(Executer *executor, uint64_t *content, size_t len)
                 Inst inst = MAKE_INST(INST_TYPE_ADDI, 0);
                 add_to_executer(executor, inst);
             } break;
+            case BYTECODE_INST_TYPE_SWAP: {
+                Inst inst = MAKE_INST(INST_TYPE_SWAP, 0);
+                add_to_executer(executor, inst);
+            } break;
+            case BYTECODE_INST_TYPE_DROP: {
+                Inst inst = MAKE_INST(INST_TYPE_DROP, 0);
+                add_to_executer(executor, inst);
+            } break;
             case BYTECODE_INST_TYPE_ADDF: {
                 Inst inst = MAKE_INST(INST_TYPE_ADDF, 0);
+                add_to_executer(executor, inst);
+            } break;
+            case BYTECODE_INST_TYPE_RET: {
+                Inst inst = MAKE_INST(INST_TYPE_RET, 0);
                 add_to_executer(executor, inst);
             } break;
             case BYTECODE_INST_TYPE_MINUSI: {
@@ -127,6 +147,16 @@ void execute_inst(Executer *exe, Inst inst){
             exe->halt = 1;
             exe->ip++;
         } break;
+        case INST_TYPE_DROP: {
+            exe->stack_size -= 1;
+            exe->ip++;
+        } break;
+        case INST_TYPE_SWAP: {
+            Operand buffer = exe->stack[exe->stack_size - 2];
+            exe->stack[exe->stack_size - 2] = exe->stack[exe->stack_size - 1];
+            exe->stack[exe->stack_size - 1] = buffer;
+            exe->ip++;
+        } break;
         case INST_TYPE_JMP: {
             exe->ip = inst.operand.as_u64 - 1;
         } break;
@@ -149,6 +179,17 @@ void execute_inst(Executer *exe, Inst inst){
             exe->stack_size += 1;
             exe->ip++;
         } break;
+        case INST_TYPE_CALL: {
+            uint64_t jmp_addr = inst.operand.as_u64;
+            uint64_t ret_addr = exe->ip+1;
+            exe->ip = jmp_addr-1;
+            exe->callAddr[exe->callAddr_len++] = ret_addr;
+        } break;
+        case INST_TYPE_RET: {
+            uint64_t ret_addr = exe->callAddr[exe->callAddr_len-1];
+            exe->callAddr_len -= 1;
+            exe->ip = ret_addr;
+        } break;
         default: {
             printf("Invalid inst\n");
             exit(1);
@@ -160,7 +201,7 @@ void executer_execute(Executer *exe){
         Inst inst = exe->program[exe->ip];
         execute_inst(exe, inst);
         executer_print_stack(exe);
-        fgetc(stdin);
+        // fgetc(stdin);
     }
 }
 

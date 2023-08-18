@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
     size_t fileLen = 0;
     char *fileContent = readFile(input_file, &fileLen);
     String content = string_from_cstr(fileContent);
-    ast = ast_lex_content(content);
+    ast = ast_lex_content(content, input_file);
     if(print_ast) printAst(ast);
     compileAst(ast, output_file);
     return 0;
