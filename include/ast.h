@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <mystring.h>
 #include "insts.h"
+#include "preprocessor.h"
 
 typedef struct {
     Inst_Type type;

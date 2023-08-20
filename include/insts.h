@@ -1,7 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <stdint.h>
-#define VERSION 0, 5, 0
+#define VERSION 0, 5, 1
 
 typedef enum{
     INST_TYPE_PUSH=1,

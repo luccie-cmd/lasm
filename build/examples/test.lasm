@@ -1,15 +1,9 @@
+%const N 100
 jmp start
 
 start:
-    push uint 32
-    push ptr 0x0001
-    write64
-    push int 0
-    push int 128
-    minusi
+    push const N
+    push int 6
+    addi
     native 1
-    drop
-    push ptr 0x0001
-    read64
-    native 2
     halt

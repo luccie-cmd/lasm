@@ -39,6 +39,7 @@ uint64_t ast_get_strings_len(Ast ast){
 
 Ast ast_lex_content(String content, char *file){
     Ast ast = {0};
+    PP pp = {0};
     uint64_t lineNumber = 0;
     unsigned int labelCount = 0;
     while(content.count > 0){
@@ -56,11 +57,15 @@ Ast ast_lex_content(String content, char *file){
         if(opcode.count > 0 && *opcode.data != ';'){
             if(string_eq(opcode, string_from_cstr("push"))){
                 String type = string_trim(string_chopByDelim(&argument, ' '));
-                if(string_eq(type, string_from_cstr("int")))         addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_i64 = string_to_int(argument)});
-                else if(string_eq(type, string_from_cstr("uint")))   addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_u64 = string_to_int(argument)});
-                else if(string_eq(type, string_from_cstr("ptr")))    addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_ptr = (void*)strtoull(argument.data, NULL, 0)});
-                else if(string_eq(type, string_from_cstr("float")))  addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_f64 = strtof(argument.data, NULL)});
-                else{                                                printf("%s:%ld ERROR: Invalid push method named `%.*s`\n", file, lineNumber-labelCount, (int) type.count, type.data); exit(1);}
+                if(string_eq(type, string_from_cstr("int")))          addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_i64 = string_to_int(argument)});
+                else if(string_eq(type, string_from_cstr("uint")))    addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_u64 = string_to_int(argument)});
+                else if(string_eq(type, string_from_cstr("ptr")))     addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_ptr = (void*)strtoull(argument.data, NULL, 0)});
+                else if(string_eq(type, string_from_cstr("float")))   addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_f64 = strtof(argument.data, NULL)});
+                else if(string_eq(type, string_from_cstr("const"))) {
+                    uint64_t value = pp_get_const(pp, argument);
+                    addAstInstNode(&ast, INST_TYPE_PUSH, (Operand) {.as_u64 = value});
+                }
+                else{         printf("%s:%ld ERROR: Invalid push method named `%.*s`\n", file, lineNumber-labelCount, (int) type.count, type.data); exit(1);}
             } else if(string_eq(opcode, string_from_cstr("addi"))){
                 addAstInstNode(&ast, INST_TYPE_ADDI, (Operand){0});
             } else if(string_eq(opcode, string_from_cstr("addf"))){
@@ -114,6 +119,15 @@ Ast ast_lex_content(String content, char *file){
                 String name = string_trim(string_chopByDelim(&argument, '"'));
                 String text = string_chopByDelim(&argument, '"');
                 addAstStrNode(&ast, name, text);
+            } else if(opcode.data[0] == '%'){
+                opcode.data++;
+                opcode.count--;
+                if(string_eq(opcode, string_from_cstr("const"))){
+                    String name = string_chopByDelim(&argument, ' ');
+                    String value = string_chopByDelim(&argument, ';');
+                    uint64_t uvalue = string_to_int(value);
+                    pp_add_const(&pp, name, uvalue);
+                }
             } else{
                 printf("%s:%ld: ERROR: No opcode with name: %.*s\n", file, lineNumber-labelCount, (int)opcode.count, opcode.data);
                 exit(1);

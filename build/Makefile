@@ -5,6 +5,6 @@ STDLIB_DIR=../include/stdlib
 STDLIB_FILES=$(STDLIB_DIR)/*.c
 
 all:
-	$(CC) $(CFLAGS) -o lasm ../src/compiler.c ../src/ast.c ../src/insts.c 
-	$(CC) $(CFLAGS) -o lexe ../src/executer.c ../src/ast.c ../src/insts.c 
+	$(CC) $(CFLAGS) -o lasm ../src/compiler.c ../src/ast.c ../src/insts.c ../src/preprocessor.c
+	$(CC) $(CFLAGS) -o lexe ../src/executer.c ../src/ast.c ../src/insts.c ../src/preprocessor.c 
 # g++ -o help_me ../src/help_me.cpp
