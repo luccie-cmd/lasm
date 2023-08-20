@@ -1,0 +1,94 @@
+jmp start
+%const TABLE_SIZE 8
+%const STATE_SIZE 30
+str loop_bodyStr "Loop Body"
+
+drops:
+    drop
+    drop
+    ret
+
+start:
+    push uint 0
+    push ptr 0x00
+    write64
+    call drops
+    push uint 1
+    push ptr 0x01
+    write64
+    call drops
+    push uint 1
+    push ptr 0x02
+    write64
+    call drops
+    push uint 1
+    push ptr 0x03
+    write64
+    call drops
+    push uint 0
+    push ptr 0x04
+    write64
+    call drops
+    push uint 1
+    push ptr 0x05
+    write64
+    call drops
+    push uint 1
+    push ptr 0x06
+    write64
+    call drops
+    push uint 0
+    push ptr 0x07
+    write64
+    call drops
+
+    push uint 1
+    push const TABLE_SIZE
+    push const STATE_SIZE
+    push uint 2
+    minusi
+    addi
+    write64
+    call drops
+
+    push const TABLE_SIZE
+    push const STATE_SIZE
+    push const STATE_SIZE
+    addi
+    addi
+
+    ; for i: i64 in 0..state_size - 2 {
+    ;   print_state(states_base + cast(ptr, state_size * state_current),
+    ;               state_size,
+    ;               display_base);
+    ;   var state_next: i64 = 1 - state_current;
+    ;   next_state(states_base + cast(ptr, state_size * state_current),
+    ;              states_base + cast(ptr, state_size * state_next),
+    ;              state_size,
+    ;              table_base);
+    ;   state_current = state_next;
+    ; }
+
+    push uint 0
+    call loop
+
+    halt
+
+loop:
+    push uint 1
+    addi
+    push const STATE_SIZE
+    push uint 2
+    minusi
+    dup 1
+    swap
+    lei
+    jmp_if loop_body
+    jmp return
+
+loop_body:
+    printstr loop_bodyStr
+    jmp loop
+
+return:
+    ret
