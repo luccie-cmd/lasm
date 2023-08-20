@@ -348,7 +348,6 @@ Error execute_inst(Executer *exe, Inst inst){
             if(exe->stack_size < 2){
                 return ERROR_STACK_UNDERFLOW;
             }
-            printf("%d\n", 28 < 0);
             exe->stack[exe->stack_size - 2].as_u64 = exe->stack[exe->stack_size - 1].as_u64 <= exe->stack[exe->stack_size - 2].as_u64;
             exe->stack_size -= 1;
             exe->ip++;

@@ -75,19 +75,25 @@ start:
     halt
 
 loop:
+    push ptr 0xffff
+    read64
     push uint 1
     addi
+    push ptr 0xffff
+    write64
+    read64
     push const STATE_SIZE
     push uint 2
     minusi
-    dup 1
     swap
     lei
     jmp_if loop_body
     jmp return
 
 loop_body:
-    printstr loop_bodyStr
+    push ptr 0xffff
+    read64
+    native 2
     jmp loop
 
 return:
