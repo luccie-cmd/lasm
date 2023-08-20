@@ -8,6 +8,7 @@ char *inst_type_as_cstr(Inst_Type type){
         case INST_TYPE_CALL:    return "INST_TYPE_CALL  ";
         case INST_TYPE_DROP:    return "INST_TYPE_DROP  ";
         case INST_TYPE_EQU:     return "INST_TYPE_EQU   ";
+        case INST_TYPE_LEI:     return "INST_TYPE_LEI   ";
         case INST_TYPE_DUP:     return "INST_TYPE_DUP   ";
         case INST_TYPE_JMP:     return "INST_TYPE_JMP   ";
         case INST_TYPE_RET:     return "INST_TYPE_RET   ";

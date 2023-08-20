@@ -113,6 +113,8 @@ Ast ast_lex_content(String content, char *file){
                 addAstInstNode(&ast, INST_TYPE_RET, (Operand){0});
             } else if(string_eq(opcode, string_from_cstr("inttofloat"))){
                 addAstInstNode(&ast, INST_TYPE_INTTOFLOAT, (Operand){0});
+            } else if(string_eq(opcode, string_from_cstr("lei"))){
+                addAstInstNode(&ast, INST_TYPE_LEI, (Operand){0});
             } else if(string_eq(opcode, string_from_cstr("native"))){
                 addAstInstNode(&ast, INST_TYPE_NATIVE, (Operand){.as_u64 = string_to_int(argument)});
             } else if(string_eq(opcode, string_from_cstr("str"))){
@@ -259,6 +261,7 @@ uint8_t inst_as_bytecode(Inst_Type type){
             case INST_TYPE_MINUSF: return BYTECODE_INST_TYPE_MINUSF;
             case INST_TYPE_DUP: return BYTECODE_INST_TYPE_DUP;
             case INST_TYPE_EQU: return BYTECODE_INST_TYPE_EQU;
+            case INST_TYPE_LEI: return BYTECODE_INST_TYPE_LEI;
             case INST_TYPE_JMP: return BYTECODE_INST_TYPE_JMP;
             case INST_TYPE_JMP_IF: return BYTECODE_INST_TYPE_JMP_IF;
             case INST_TYPE_CALL: return BYTECODE_INST_TYPE_CALL;
@@ -298,6 +301,7 @@ void compileAst(Ast ast, const char *outFile){
                     } break;
                     case INST_TYPE_DROP:
                     case INST_TYPE_EQU:
+                    case INST_TYPE_LEI:
                     case INST_TYPE_ADDF:
                     case INST_TYPE_SWAP:
                     case INST_TYPE_MINUSF:

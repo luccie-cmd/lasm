@@ -154,6 +154,11 @@ void executer_load_from_uint8(Executer *executor, uint8_t *content, size_t len){
                 add_to_executer(executor, inst);
                 i+=1;
             } break;
+            case BYTECODE_INST_TYPE_LEI: {
+                Inst inst = MAKE_INST(INST_TYPE_LEI, 0);
+                add_to_executer(executor, inst);
+                i+=1;
+            } break;
             case BYTECODE_INST_TYPE_WRITE64: {
                 Inst inst = MAKE_INST(INST_TYPE_WRITE64, 0);
                 add_to_executer(executor, inst);
@@ -339,6 +344,15 @@ Error execute_inst(Executer *exe, Inst inst){
             exe->stack_size -= 1;
             exe->ip++;
         } break;
+        case INST_TYPE_LEI: {
+            if(exe->stack_size < 2){
+                return ERROR_STACK_UNDERFLOW;
+            }
+            printf("%d\n", 28 < 0);
+            exe->stack[exe->stack_size - 2].as_u64 = exe->stack[exe->stack_size - 1].as_u64 <= exe->stack[exe->stack_size - 2].as_u64;
+            exe->stack_size -= 1;
+            exe->ip++;
+        } break;
         case INST_TYPE_DUP: {
             if(exe->stack_size < 1){
                 return ERROR_STACK_UNDERFLOW;
@@ -447,10 +461,12 @@ void parse_arguments(int argc, char **argv){
 
 int main(int argc, char **argv){
     parse_arguments(argc, argv);
-    size_t len = 0;
-    Executer exe = {0};
-    uint8_t *content = readFile(in_file, &len);
-    executer_load_from_uint8(&exe, content, len);
-    executer_execute(&exe);
+    if(strcmp(in_file, "examples/rule110.lexe") == 0){
+        size_t len = 0;
+        Executer exe = {0};
+        uint8_t *content = readFile(in_file, &len);
+        executer_load_from_uint8(&exe, content, len);
+        executer_execute(&exe);
+    }
     return 0;
 }
