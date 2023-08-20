@@ -1,3 +1,5 @@
 .vscode/
-*.exe
+include/stdlib/
+build/lasm
+build/lexe
 *.lexe

@@ -1,0 +1,6 @@
+jmp start
+str name "Hello, World!"
+
+start:
+    printstr name
+    halt

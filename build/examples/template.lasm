@@ -1,0 +1,4 @@
+jmp start
+
+start:
+    halt

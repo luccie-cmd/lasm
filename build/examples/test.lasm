@@ -1,0 +1,20 @@
+jmp start
+str name "Hello, World!"
+
+start:
+    push int 0
+    call loop
+    drop
+    halt
+
+loop:
+    printstr name
+    push int 1
+    addi
+    push int 10
+    dup 1
+    equ
+    jmp_if loopExit
+    jmp loop
+loopExit:
+    ret

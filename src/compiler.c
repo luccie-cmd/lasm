@@ -4,7 +4,6 @@
 #include <string.h>
 #include "insts.h"
 #include "ast.h"
-#define VERSION 0, 1, 0
 
 char *readFile(const char* filePath, size_t *len){
     FILE *f = fopen(filePath, "r");

@@ -15,6 +15,9 @@ char *inst_type_as_cstr(Inst_Type type){
         case INST_TYPE_MINUSI:  return "INST_TYPE_MINUSI";
         case INST_TYPE_ADDF:    return "INST_TYPE_ADDF  ";
         case INST_TYPE_MINUSF:  return "INST_TYPE_MINUSF";
+        case INST_TYPE_NATIVE:  return "INST_TYPE_NATIVE";
+        case INST_TYPE_PRINTSTR:  return "INST_TYPE_PRINTSTR";
+        case INST_TYPE_INTTOFLOAT:  return "INST_TYPE_INTTOFLOAT";
         case INST_TYPE_HALT:    return "INST_TYPE_HALT  ";
         default:                return NULL;
     }

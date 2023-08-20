@@ -1,0 +1,5 @@
+push int 4
+push int 20
+inttofloat
+native 3
+halt
