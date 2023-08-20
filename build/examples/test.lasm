@@ -1,20 +1,15 @@
 jmp start
-str name "Hello, World!"
 
 start:
+    push uint 32
+    push ptr 0x0001
+    write64
     push int 0
-    call loop
+    push int 128
+    minusi
+    native 1
     drop
+    push ptr 0x0001
+    read64
+    native 2
     halt
-
-loop:
-    printstr name
-    push int 1
-    addi
-    push int 10
-    dup 1
-    equ
-    jmp_if loopExit
-    jmp loop
-loopExit:
-    ret

@@ -13,6 +13,8 @@ char *inst_type_as_cstr(Inst_Type type){
         case INST_TYPE_RET:     return "INST_TYPE_RET   ";
         case INST_TYPE_JMP_IF:  return "INST_TYPE_JMP_IF";
         case INST_TYPE_MINUSI:  return "INST_TYPE_MINUSI";
+        case INST_TYPE_WRITE64:  return "INST_TYPE_WRITE64";
+        case INST_TYPE_READ64:  return "INST_TYPE_READ64";
         case INST_TYPE_ADDF:    return "INST_TYPE_ADDF  ";
         case INST_TYPE_MINUSF:  return "INST_TYPE_MINUSF";
         case INST_TYPE_NATIVE:  return "INST_TYPE_NATIVE";

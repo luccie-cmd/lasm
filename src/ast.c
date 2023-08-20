@@ -94,6 +94,10 @@ Ast ast_lex_content(String content, char *file){
                 addAstInstNode(&ast, INST_TYPE_DROP, (Operand){0});
             } else if(string_eq(opcode, string_from_cstr("swap"))){
                 addAstInstNode(&ast, INST_TYPE_SWAP, (Operand){0});
+            } else if(string_eq(opcode, string_from_cstr("read64"))){
+                addAstInstNode(&ast, INST_TYPE_READ64, (Operand){0});
+            } else if(string_eq(opcode, string_from_cstr("write64"))){
+                addAstInstNode(&ast, INST_TYPE_WRITE64, (Operand){0});
             } else if(string_eq(opcode, string_from_cstr("call"))){
                 uint64_t insts_len = ast_get_insts_len(ast);
                 uint64_t strings_len = ast_get_strings_len(ast);
@@ -249,6 +253,8 @@ uint8_t inst_as_bytecode(Inst_Type type){
             case INST_TYPE_SWAP: return BYTECODE_INST_TYPE_SWAP;
             case INST_TYPE_NATIVE: return BYTECODE_INST_TYPE_NATIVE;
             case INST_TYPE_PRINTSTR: return BYTECODE_INST_TYPE_PRINTSTR;
+            case INST_TYPE_READ64: return BYTECODE_INST_TYPE_READ64;
+            case INST_TYPE_WRITE64: return BYTECODE_INST_TYPE_WRITE64;
             case INST_TYPE_INTTOFLOAT: return BYTECODE_INST_TYPE_INTTOFLOAT;
             case INST_TYPE_HALT: return BYTECODE_INST_TYPE_HALT;
             default: return -1;
@@ -285,6 +291,8 @@ void compileAst(Ast ast, const char *outFile){
                     case INST_TYPE_RET:
                     case INST_TYPE_HALT:
                     case INST_TYPE_INTTOFLOAT:
+                    case INST_TYPE_READ64:
+                    case INST_TYPE_WRITE64:
                     case INST_TYPE_ADDI: {
                         uint8_t bytecodeInst = inst_as_bytecode(ast.nodes[i].as_inst.type);
                         fwrite(&bytecodeInst, sizeof(uint8_t), 1, f);

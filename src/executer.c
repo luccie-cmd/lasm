@@ -22,6 +22,8 @@ typedef struct{
     String strings[1024*sizeof(String)];
     uint64_t strings_len;
 
+    uint64_t memory[0xffff*sizeof(uint64_t)];
+
     uint64_t ip;
     int halt;
 } Executer;
@@ -149,6 +151,16 @@ void executer_load_from_uint8(Executer *executor, uint8_t *content, size_t len){
             } break;
             case BYTECODE_INST_TYPE_DROP: {
                 Inst inst = MAKE_INST(INST_TYPE_DROP, 0);
+                add_to_executer(executor, inst);
+                i+=1;
+            } break;
+            case BYTECODE_INST_TYPE_WRITE64: {
+                Inst inst = MAKE_INST(INST_TYPE_WRITE64, 0);
+                add_to_executer(executor, inst);
+                i+=1;
+            } break;
+            case BYTECODE_INST_TYPE_READ64: {
+                Inst inst = MAKE_INST(INST_TYPE_READ64, 0);
                 add_to_executer(executor, inst);
                 i+=1;
             } break;
@@ -373,6 +385,23 @@ Error execute_inst(Executer *exe, Inst inst){
             double result = (double)integer + (double)fraction / 100.0;
             exe->stack[exe->stack_size - 2].as_f64 = result;
             exe->stack_size -= 1;
+            exe->ip++;
+        } break;
+        case INST_TYPE_READ64: {
+            if(exe->stack_size < 1){
+                return ERROR_STACK_UNDERFLOW;
+            }
+            uint64_t addr = exe->stack[exe->stack_size-1].as_u64;
+            exe->stack[exe->stack_size - 1].as_u64 = exe->memory[addr];
+            exe->ip++;
+        } break;
+        case INST_TYPE_WRITE64: {
+            if(exe->stack_size < 2){
+                return ERROR_STACK_UNDERFLOW;
+            }
+            uint64_t mem_addr = exe->stack[exe->stack_size - 1].as_u64;
+            uint64_t num = exe->stack[exe->stack_size - 2].as_u64;
+            exe->memory[mem_addr] = num;
             exe->ip++;
         } break;
         default: {
