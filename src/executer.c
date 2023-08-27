@@ -460,12 +460,10 @@ void parse_arguments(int argc, char **argv){
 
 int main(int argc, char **argv){
     parse_arguments(argc, argv);
-    if(strcmp(in_file, "examples/rule110.lexe") == 0){
-        size_t len = 0;
-        Executer exe = {0};
-        uint8_t *content = readFile(in_file, &len);
-        executer_load_from_uint8(&exe, content, len);
-        executer_execute(&exe);
-    }
+    size_t len = 0;
+    Executer exe = {0};
+    uint8_t *content = readFile(in_file, &len);
+    executer_load_from_uint8(&exe, content, len);
+    executer_execute(&exe);
     return 0;
 }
